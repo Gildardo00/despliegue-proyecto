@@ -1,0 +1,104 @@
+erDiagram
+    usuario {
+        int id_usuario PK
+        varchar nombre
+        varchar correo "UNIQUE"
+        varchar usuario "UNIQUE"
+        varchar contrasena
+        varchar rol
+        datetime fecha_registro
+    }
+    configuracion {
+        varchar clave PK
+        varchar valor
+    }
+    palabra_prohibida {
+        int id_palabra PK
+        varchar palabra "UNIQUE"
+    }
+    juego_disciplina {
+        int id_juego PK
+        varchar nombre_disciplina
+        varchar regla_puntuacion
+        varchar tipo_competencia
+        varchar modalidad
+        tinyint activa
+    }
+    equipo {
+        int id_equipo PK
+        varchar nombre_equipo "UNIQUE"
+        int id_juego FK
+        varchar categoria
+        varchar rama
+        int seed
+        datetime fecha_registro
+    }
+    jugador {
+        int id_jugador PK
+        varchar nombre_completo
+        int id_equipo FK
+        int id_juego FK
+        varchar categoria
+        varchar rama
+        int edad
+    }
+    ronda {
+        int id_ronda PK
+        varchar nombre_ronda
+        varchar estatus
+    }
+    jornada {
+        int id_jornada PK
+        int numero_jornada
+        date fecha_inicio
+        date fecha_fin
+        int id_ronda FK
+    }
+    partido {
+        int id_partido PK
+        varchar sede
+        int id_juego FK
+        int id_jornada FK
+    }
+    enfrentar {
+        int id_equipo PK_FK
+        int id_partido PK_FK
+        varchar condicion
+        int goles_totales_local
+        int goles_totales_visitante
+    }
+    participar {
+        int id_jugador PK_FK
+        int id_partido PK_FK
+        int numero_p
+        int goles_individuales
+        tinyint partida_ganada
+    }
+    enfrentamiento {
+        int id_enfrentamiento PK
+        int id_juego FK
+        varchar categoria
+        varchar rama
+        varchar formato
+        varchar fase
+        int orden
+        int id_equipo_a FK
+        int id_equipo_b FK
+        int seed_a
+        int seed_b
+        tinyint es_bye
+        datetime fecha_generacion
+    }
+
+    equipo           ||--o{ jugador        : "Tener"
+    juego_disciplina ||--o{ equipo         : "Clasificar"
+    juego_disciplina ||--o{ jugador        : "Inscribir"
+    ronda            ||--o{ jornada        : "Contener"
+    jornada          ||--o{ partido        : "Organizar"
+    juego_disciplina ||--o{ partido        : "Definir"
+    equipo           ||--o{ enfrentar      : "Enfrentar (N:M)"
+    partido          ||--o{ enfrentar      : "Enfrentar (N:M)"
+    jugador          ||--o{ participar     : "Participar (N:M)"
+    partido          ||--o{ participar     : "Participar (N:M)"
+    juego_disciplina ||--o{ enfrentamiento : "Generar"
+    equipo           ||--o{ enfrentamiento : "Competir"

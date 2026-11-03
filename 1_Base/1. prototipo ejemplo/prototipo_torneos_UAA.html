@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Torneos Deportivos — UAA</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --verde: #00C48C;
+    --verde-oscuro: #008F66;
+    --azul: #0A1628;
+    --azul-medio: #112240;
+    --azul-panel: #162A4A;
+    --texto: #E8F0FE;
+    --texto-muted: #8B9DC3;
+    --borde: rgba(0,196,140,0.18);
+    --rojo: #FF4D6D;
+    --amarillo: #FFD166;
+    --radius: 12px;
+    --sombra: 0 4px 24px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--azul);
+    color: var(--texto);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ──── LAYOUT ──── */
+  .shell { display: flex; min-height: 100vh; }
+
+  /* ──── SIDEBAR ──── */
+  .sidebar {
+    width: 240px;
+    background: var(--azul-medio);
+    border-right: 1px solid var(--borde);
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 24px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--borde);
+    margin-bottom: 12px;
+  }
+
+  .sidebar-logo .titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1.5px;
+    color: var(--verde);
+    line-height: 1.1;
+  }
+
+  .sidebar-logo .subtitulo {
+    font-size: 11px;
+    color: var(--texto-muted);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .nav-section {
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--texto-muted);
+    font-weight: 600;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin: 2px 10px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--texto-muted);
+    transition: all 0.18s;
+    border: none;
+    background: none;
+    width: calc(100% - 20px);
+    text-align: left;
+  }
+
+  .nav-item:hover { background: rgba(0,196,140,0.08); color: var(--texto); }
+  .nav-item.activo { background: rgba(0,196,140,0.16); color: var(--verde); font-weight: 500; }
+
+  .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+
+  .badge {
+    margin-left: auto;
+    background: var(--verde);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 2px 7px;
+  }
+
+  .badge.rojo { background: var(--rojo); color: #fff; }
+
+  /* ──── MAIN ──── */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .topbar {
+    background: var(--azul-medio);
+    border-bottom: 1px solid var(--borde);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .topbar-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--texto);
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .chip {
+    background: rgba(0,196,140,0.12);
+    border: 1px solid var(--verde);
+    color: var(--verde);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .chip:hover { background: rgba(0,196,140,0.22); }
+  .chip.rojo { border-color: var(--rojo); color: var(--rojo); background: rgba(255,77,109,0.1); }
+  .chip.rojo:hover { background: rgba(255,77,109,0.2); }
+
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--verde);
+    color: #000;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ──── CONTENIDO ──── */
+  .contenido {
+    padding: 28px 32px;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* ──── VISTAS ──── */
+  .vista { display: none; }
+  .vista.activa { display: block; }
+  .vista.activa-grid { display: grid; }
+
+  /* ──── CARDS DE STATS ──── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--azul-panel);
+    border: 1px solid var(--borde);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--verde);
+  }
+
+  .stat-card.rojo::before { background: var(--rojo); }
+  .stat-card.amarillo::before { background: var(--amarillo); }
+  .stat-card.azul::before { background: #4A9EFF; }
+
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--texto-muted); margin-bottom: 8px; }
+  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--texto); line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--texto-muted); margin-top: 4px; }
+
+  /* ──── PANEL DOBLE ──── */
+  .panel-doble {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .panel {
+    background: var(--azul-panel);
+    border: 1px solid var(--borde);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+
+  .panel-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    letter-spacing: 1.5px;
+    color: var(--texto-muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-titulo span { font-size: 16px; }
+
+  /* ──── TABLA ──── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--texto-muted);
+    border-bottom: 1px solid var(--borde);
+    font-weight: 600;
+  }
+  td { padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.025); }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .pill.must { background: rgba(0,196,140,0.18); color: var(--verde); }
+  .pill.open { background: rgba(74,158,255,0.18); color: #4A9EFF; }
+  .pill.cerrado { background: rgba(255,77,109,0.18); color: var(--rojo); }
+  .pill.proximo { background: rgba(255,209,102,0.18); color: var(--amarillo); }
+
+  /* ──── FORMULARIO DE INSCRIPCIÓN ──── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-full { grid-column: 1 / -1; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--texto-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; }
+
+  .field input,
+  .field select,
+  .field textarea {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--texto);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus { border-color: var(--verde); }
+
+  .field input.error,
+  .field select.error { border-color: var(--rojo); }
+
+  .error-msg { font-size: 11px; color: var(--rojo); margin-top: 3px; display: none; }
+  .error-msg.visible { display: block; }
+
+  .field select option { background: var(--azul-panel); color: var(--texto); }
+
+  .btn {
+    padding: 11px 24px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-primario { background: var(--verde); color: #000; }
+  .btn-primario:hover { background: var(--verde-oscuro); }
+  .btn-secundario { background: rgba(255,255,255,0.06); color: var(--texto); border: 1px solid var(--borde); }
+  .btn-secundario:hover { background: rgba(255,255,255,0.1); }
+  .btn-peligro { background: rgba(255,77,109,0.15); color: var(--rojo); border: 1px solid rgba(255,77,109,0.3); }
+  .btn-peligro:hover { background: rgba(255,77,109,0.25); }
+
+  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+
+  /* ──── BRACKET ──── */
+  .bracket-container { overflow-x: auto; padding-bottom: 12px; }
+  .bracket {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    min-width: 700px;
+    padding: 16px 0;
+  }
+
+  .ronda { display: flex; flex-direction: column; gap: 28px; flex-shrink: 0; }
+  .ronda-titulo { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--texto-muted); text-align: center; margin-bottom: 8px; }
+
+  .partido {
+    background: var(--azul-panel);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    width: 160px;
+    overflow: hidden;
+  }
+
+  .equipo {
+    padding: 8px 12px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .equipo:first-child { border-bottom: 1px solid var(--borde); }
+  .equipo.ganador { background: rgba(0,196,140,0.12); color: var(--verde); font-weight: 600; }
+  .equipo.bye { color: var(--texto-muted); font-style: italic; font-size: 12px; }
+  .equipo .score { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--texto); }
+  .equipo.ganador .score { color: var(--verde); }
+
+  .flecha { color: var(--verde); font-size: 20px; flex-shrink: 0; }
+
+  /* ──── ROUND ROBIN ──── */
+  .rr-tabla th, .rr-tabla td { text-align: center; font-size: 12px; padding: 8px; }
+  .rr-tabla td.self { background: rgba(255,255,255,0.04); color: var(--texto-muted); }
+  .rr-tabla td.victoria { background: rgba(0,196,140,0.12); color: var(--verde); font-weight: 600; }
+  .rr-tabla td.derrota { background: rgba(255,77,109,0.08); color: var(--rojo); }
+
+  /* ──── TOAST ──── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--azul-panel);
+    border: 1px solid var(--verde);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    box-shadow: var(--sombra);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 9999;
+    max-width: 340px;
+  }
+
+  .toast.visible { transform: translateY(0); opacity: 1; }
+  .toast.error { border-color: var(--rojo); }
+  .toast-icon { font-size: 20px; flex-shrink: 0; }
+
+  /* ──── MODAL ──── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.visible { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--azul-panel);
+    border: 1px solid var(--borde);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    width: 500px;
+    max-width: 96vw;
+    transform: translateY(20px);
+    transition: transform 0.2s;
+  }
+
+  .modal-overlay.visible .modal { transform: translateY(0); }
+  .modal-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1.5px; margin-bottom: 20px; color: var(--verde); }
+
+  /* ──── DEPORTES GRID ──── */
+  .deportes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .deporte-card {
+    background: var(--azul-panel);
+    border: 1px solid var(--borde);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+  }
+
+  .deporte-card:hover { border-color: var(--verde); background: rgba(0,196,140,0.06); }
+  .deporte-card.activo { border-color: var(--verde); background: rgba(0,196,140,0.1); }
+
+  .deporte-icon { font-size: 32px; margin-bottom: 8px; }
+  .deporte-nombre { font-weight: 600; font-size: 13px; }
+  .deporte-info { font-size: 11px; color: var(--texto-muted); margin-top: 4px; }
+
+  .deporte-estado {
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .deporte-estado.abierto { color: var(--verde); }
+  .deporte-estado.cerrado { color: var(--rojo); }
+  .deporte-estado.proximo { color: var(--amarillo); }
+
+  /* ──── RESPONSIVE HACK ──── */
+  @media (max-width: 900px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .panel-doble { grid-template-columns: 1fr; }
+    .deportes-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ──── SECTION HEADER ──── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  /* ──── SCROLLBAR ──── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+  /* ──── INSCRIPCIONES ESTADO BAR ──── */
+  .estado-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,196,140,0.08);
+    border: 1px solid rgba(0,196,140,0.25);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+
+  .estado-bar .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--verde);
+    animation: pulso 1.5s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulso {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--borde);
+    padding-bottom: 0;
+  }
+
+  .tab {
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    color: var(--texto-muted);
+    border: 1px solid transparent;
+    border-bottom: none;
+    margin-bottom: -1px;
+    background: transparent;
+    transition: all 0.15s;
+  }
+
+  .tab.activo {
+    background: var(--azul-panel);
+    color: var(--verde);
+    border-color: var(--borde);
+    border-bottom-color: var(--azul-panel);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.activo { display: block; }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Operación realizada con éxito</span>
+</div>
+
+<!-- MODAL CIERRE INSCRIPCIONES -->
+<div class="modal-overlay" id="modalCierre">
+  <div class="modal">
+    <div class="modal-titulo">⚠ Cerrar Inscripciones</div>
+    <p style="color:var(--texto-muted);font-size:14px;margin-bottom:18px;">
+      Al cerrar las inscripciones, no se podrán registrar nuevos participantes y se habilitará la generación de brackets y equipos.
+    </p>
+    <div class="btn-row">
+      <button class="btn btn-peligro" onclick="confirmarCierre()">Confirmar cierre</button>
+      <button class="btn btn-secundario" onclick="cerrarModal('modalCierre')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GENERAR BRACKET -->
+<div class="modal-overlay" id="modalBracket">
+  <div class="modal">
+    <div class="modal-titulo">⚡ Generar Torneo</div>
+    <div class="form-grid" style="margin-bottom:16px;">
+      <div class="field">
+        <label>Deporte</label>
+        <select id="bracketDeporte">
+          <option>Fútbol Varonil</option>
+          <option>Baloncesto Femenil</option>
+          <option>Voleibol Mixto</option>
+          <option>Ajedrez</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Formato</label>
+        <select id="bracketFormato">
+          <option value="eliminacion">Eliminación Directa</option>
+          <option value="roundrobin">Round Robin</option>
+        </select>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--texto-muted);">El sistema asignará emparejamientos automáticamente.</p>
+    <div class="btn-row">
+      <button class="btn btn-primario" onclick="generarBracket()">Generar</button>
+      <button class="btn btn-secundario" onclick="cerrarModal('modalBracket')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ENLACE DE INVITACIÓN -->
+<div class="modal-overlay" id="modalEnlace">
+  <div class="modal">
+    <div class="modal-titulo">🔗 Enlace de Invitación</div>
+    <p style="color:var(--texto-muted);font-size:13px;margin-bottom:16px;">
+      Comparte este enlace con los integrantes de tu equipo para que puedan unirse directamente sin crear un equipo nuevo.
+    </p>
+    <div style="background:rgba(0,196,140,0.08);border:1px solid var(--verde);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <span style="flex:1;font-size:12px;color:var(--verde);word-break:break-all;" id="textoEnlace">https://arena.uaa.mx/unirse?equipo=...</span>
+      <button class="btn btn-secundario" style="padding:7px 14px;font-size:12px;flex-shrink:0;" onclick="copiarEnlace()">Copiar</button>
+    </div>
+    <p style="font-size:11px;color:var(--texto-muted);">El enlace expira cuando se cierre el periodo de inscripciones.</p>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-secundario" onclick="cerrarModal('modalEnlace')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL UNIRSE A EQUIPO (vista del integrante que recibe el enlace) -->
+<div class="modal-overlay" id="modalUnirse">
+  <div class="modal">
+    <div class="modal-titulo">👋 Unirse a un Equipo</div>
+    <p style="color:var(--texto-muted);font-size:13px;margin-bottom:4px;">Fuiste invitado a unirte a:</p>
+    <div style="background:rgba(0,196,140,0.1);border:1px solid var(--verde);border-radius:8px;padding:14px;margin-bottom:18px;text-align:center;">
+      <div style="font-size:22px;margin-bottom:4px;">⚽</div>
+      <div style="font-weight:700;font-size:16px;" id="nombreEquipoInvite">Los Gallos</div>
+      <div style="font-size:12px;color:var(--texto-muted);margin-top:3px;">Fútbol Varonil · 3/5 integrantes</div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Tu nombre completo *</label>
+        <input type="text" id="uni_nombre" placeholder="Juan García López">
+        <div class="error-msg" id="uni_err_nombre">Campo obligatorio</div>
+      </div>
+      <div class="field">
+        <label>Matrícula UAA *</label>
+        <input type="text" id="uni_matricula" placeholder="22027001">
+        <div class="error-msg" id="uni_err_matricula">Campo obligatorio</div>
+      </div>
+      <div class="field form-full">
+        <label>Correo institucional *</label>
+        <input type="email" id="uni_correo" placeholder="nombre@edu.uaa.mx">
+        <div class="error-msg" id="uni_err_correo">Campo obligatorio</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primario" onclick="confirmarUnirse()">Unirme al equipo</button>
+      <button class="btn btn-secundario" onclick="cerrarModal('modalUnirse')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="titulo">ARENA UAA</div>
+      <div class="subtitulo">Torneos Deportivos · Dep. Actividades</div>
+    </div>
+
+    <div class="nav-section">Principal</div>
+    <button class="nav-item activo" onclick="irVista('dashboard', this)">
+      <span class="icon">📊</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="irVista('deportes', this)">
+      <span class="icon">🏆</span> Disciplinas
+      <span class="badge">10</span>
+    </button>
+
+    <div class="nav-section">Inscripciones</div>
+    <button class="nav-item" onclick="irVista('inscripcion', this)">
+      <span class="icon">📝</span> Nueva Inscripción
+    </button>
+    <button class="nav-item" onclick="irVista('participantes', this)">
+      <span class="icon">👥</span> Participantes
+      <span class="badge">47</span>
+    </button>
+
+    <div class="nav-section">Torneos</div>
+    <button class="nav-item" onclick="irVista('torneos', this)">
+      <span class="icon">⚡</span> Brackets / Tablas
+    </button>
+    <button class="nav-item" onclick="irVista('equipos', this)">
+      <span class="icon">🎯</span> Equipos
+    </button>
+
+    <div class="nav-section" style="margin-top:auto;">Sistema</div>
+    <button class="nav-item" onclick="irVista('admin', this)">
+      <span class="icon">⚙️</span> Administración
+      <span class="badge rojo">1</span>
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-titulo" id="topbarTitulo">Dashboard</div>
+      <div class="topbar-right">
+        <span id="estadoInscripcionesBadge" class="chip">⚡ Inscripciones abiertas</span>
+        <div class="avatar">DB</div>
+      </div>
+    </div>
+
+    <div class="contenido">
+
+      <!-- ════════════════ DASHBOARD ════════════════ -->
+      <div class="vista activa" id="vista-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Participantes registrados</div>
+            <div class="stat-num">47</div>
+            <div class="stat-sub">↑ 12 esta semana</div>
+          </div>
+          <div class="stat-card azul">
+            <div class="stat-label">Disciplinas activas</div>
+            <div class="stat-num">7</div>
+            <div class="stat-sub">de 10 configuradas</div>
+          </div>
+          <div class="stat-card amarillo">
+            <div class="stat-label">Torneos en curso</div>
+            <div class="stat-num">3</div>
+            <div class="stat-sub">2 eliminación · 1 RR</div>
+          </div>
+          <div class="stat-card rojo">
+            <div class="stat-label">Tiempo estimado proceso</div>
+            <div class="stat-num">~2h</div>
+            <div class="stat-sub">vs 5h manual anterior</div>
+          </div>
+        </div>
+
+        <div class="panel-doble">
+          <div class="panel">
+            <div class="panel-titulo"><span>📋</span> Torneos recientes</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Disciplina</th>
+                  <th>Formato</th>
+                  <th>Estado</th>
+                  <th>Participantes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Fútbol Varonil</td>
+                  <td>Eliminación</td>
+                  <td><span class="pill open">Activo</span></td>
+                  <td>16</td>
+                </tr>
+                <tr>
+                  <td>Baloncesto Femenil</td>
+                  <td>Round Robin</td>
+                  <td><span class="pill open">Activo</span></td>
+                  <td>8</td>
+                </tr>
+                <tr>
+                  <td>Voleibol Mixto</td>
+                  <td>Eliminación</td>
+                  <td><span class="pill proximo">Por generar</span></td>
+                  <td>12</td>
+                </tr>
+                <tr>
+                  <td>Ajedrez</td>
+                  <td>Round Robin</td>
+                  <td><span class="pill cerrado">Finalizado</span></td>
+                  <td>6</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel">
+            <div class="panel-titulo"><span>⚠️</span> Alertas del sistema</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.2);border-radius:8px;padding:12px;font-size:13px;">
+                <strong style="color:var(--rojo)">RNF-03 · Pendiente validar</strong><br>
+                <span style="color:var(--texto-muted);font-size:12px;">Autenticación VPN pendiente de confirmación con TI de la UAA.</span>
+              </div>
+              <div style="background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);border-radius:8px;padding:12px;font-size:13px;">
+                <strong style="color:var(--amarillo)">Voleibol Mixto</strong><br>
+                <span style="color:var(--texto-muted);font-size:12px;">12 participantes registrados. Inscripciones abiertas. Listo para cerrar y generar bracket.</span>
+              </div>
+              <div style="background:rgba(0,196,140,0.06);border:1px solid rgba(0,196,140,0.15);border-radius:8px;padding:12px;font-size:13px;">
+                <strong style="color:var(--verde)">Backup automático</strong><br>
+                <span style="color:var(--texto-muted);font-size:12px;">Último respaldo: hoy 06:00 AM — RNF-05 cumplido.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════ DISCIPLINAS ════════════════ -->
+      <div class="vista" id="vista-deportes">
+        <div class="section-header">
+          <div class="section-title">Disciplinas Deportivas</div>
+          <button class="btn btn-primario" onclick="mostrarToast('✅','Deporte añadido correctamente')">+ Añadir deporte</button>
+        </div>
+        <p style="font-size:13px;color:var(--texto-muted);margin-bottom:20px;">El sistema soporta hasta 10 deportes activos simultáneamente — RF-08</p>
+        <div class="deportes-grid">
+          <div class="deporte-card activo">
+            <div class="deporte-icon">⚽</div>
+            <div class="deporte-nombre">Fútbol Varonil</div>
+            <div class="deporte-info">16 participantes · Eliminación</div>
+            <div class="deporte-estado abierto">● Activo</div>
+          </div>
+          <div class="deporte-card">
+            <div class="deporte-icon">🏀</div>
+            <div class="deporte-nombre">Baloncesto Femenil</div>
+            <div class="deporte-info">8 participantes · Round Robin</div>
+            <div class="deporte-estado abierto">● Activo</div>
+          </div>
+          <div class="deporte-card">
+            <div class="deporte-icon">🏐</div>
+            <div class="deporte-nombre">Voleibol Mixto</div>
+            <div class="deporte-info">12 participantes · Eliminación</div>
+            <div class="deporte-estado proximo">● Por generar</div>
+          </div>
+          <div class="deporte-card">
+            <div class="deporte-icon">♟️</div>
+            <div class="deporte-nombre">Ajedrez</div>
+            <div class="deporte-info">6 participantes · Round Robin</div>
+            <div class="deporte-estado cerrado">● Finalizado</div>
+          </div>
+          <div class="deporte-card">
+            <div class="deporte-icon">🎮</div>
+            <div class="deporte-nombre">Videojuegos</div>
+            <div class="deporte-info">5 participantes · Por definir</div>
+            <div class="deporte-estado proximo">● Inscripciones abiertas</div>
+          </div>
+          <div class="deporte-card">
+            <div class="deporte-icon">🏓</div>
+            <div class="deporte-nombre">Ping Pong</div>
+            <div class="deporte-info">0 participantes</div>
+            <div class="deporte-estado proximo">● Por iniciar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════ INSCRIPCIÓN ════════════════ -->
+      <div class="vista" id="vista-inscripcion">
+        <div class="section-header">
+          <div class="section-title">Nueva Inscripción</div>
+        </div>
+
+        <div class="estado-bar">
+          <div class="dot"></div>
+          <span>Inscripciones <strong>abiertas</strong> · Los participantes pueden registrarse</span>
+          <button class="chip rojo" style="margin-left:auto;" onclick="document.getElementById('modalCierre').classList.add('visible')">Cerrar inscripciones</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-titulo"><span>📝</span> Datos del participante</div>
+          <p style="font-size:12px;color:var(--texto-muted);margin-bottom:18px;">Todos los campos marcados con * son obligatorios. El sistema no permitirá guardar registros incompletos.</p>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Nombre completo *</label>
+              <input type="text" id="f_nombre" placeholder="Ej. Juan García López">
+              <div class="error-msg" id="err_nombre">Campo obligatorio</div>
+            </div>
+            <div class="field">
+              <label>Matrícula / ID UAA *</label>
+              <input type="text" id="f_matricula" placeholder="Ej. 22027001">
+              <div class="error-msg" id="err_matricula">Campo obligatorio</div>
+            </div>
+            <div class="field">
+              <label>Edad *</label>
+              <input type="number" id="f_edad" placeholder="18" min="15" max="40">
+              <div class="error-msg" id="err_edad">Campo obligatorio</div>
+            </div>
+            <div class="field">
+              <label>Correo institucional *</label>
+              <input type="email" id="f_correo" placeholder="nombre@edu.uaa.mx">
+              <div class="error-msg" id="err_correo">Campo obligatorio</div>
+            </div>
+            <div class="field">
+              <label>Disciplina *</label>
+              <select id="f_disciplina">
+                <option value="">— Seleccionar —</option>
+                <option>Fútbol Varonil</option>
+                <option>Baloncesto Femenil</option>
+                <option>Voleibol Mixto</option>
+                <option>Ajedrez</option>
+                <option>Videojuegos</option>
+                <option>Ping Pong</option>
+              </select>
+              <div class="error-msg" id="err_disciplina">Campo obligatorio</div>
+            </div>
+            <div class="field">
+              <label>Categoría *</label>
+              <select id="f_categoria">
+                <option value="">— Seleccionar —</option>
+                <option>Varonil</option>
+                <option>Femenil</option>
+                <option>Mixto</option>
+              </select>
+              <div class="error-msg" id="err_categoria">Campo obligatorio</div>
+            </div>
+            <div class="field form-full">
+              <label>Nombre de equipo (si aplica)</label>
+              <input type="text" id="f_equipo" placeholder="Nombre del equipo (se filtrará lenguaje inapropiado)">
+              <div class="error-msg" id="err_equipo" style="color:var(--rojo)"></div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-primario" onclick="registrarParticipante()">Registrar participante</button>
+            <button class="btn btn-secundario" onclick="limpiarForm()">Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════ PARTICIPANTES ════════════════ -->
+      <div class="vista" id="vista-participantes">
+        <div class="section-header">
+          <div class="section-title">Participantes Registrados</div>
+          <div style="display:flex;gap:8px;">
+            <select style="background:var(--azul-panel);border:1px solid var(--borde);border-radius:8px;padding:8px 12px;color:var(--texto);font-size:13px;outline:none;">
+              <option>Todos los deportes</option>
+              <option>Fútbol Varonil</option>
+              <option>Baloncesto Femenil</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Matrícula</th>
+                <th>Disciplina</th>
+                <th>Categoría</th>
+                <th>Equipo</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="tablaParticipantes">
+              <tr><td>1</td><td>Carlos Rodríguez</td><td>22001001</td><td>Fútbol Varonil</td><td>Varonil</td><td>Los Gallos</td><td><span class="pill must">Completo</span></td></tr>
+              <tr><td>2</td><td>María López</td><td>22001002</td><td>Baloncesto Femenil</td><td>Femenil</td><td>—</td><td><span class="pill must">Completo</span></td></tr>
+              <tr><td>3</td><td>Pedro Martínez</td><td>22001003</td><td>Fútbol Varonil</td><td>Varonil</td><td>Los Gallos</td><td><span class="pill must">Completo</span></td></tr>
+              <tr><td>4</td><td>Ana García</td><td>22001004</td><td>Voleibol Mixto</td><td>Femenil</td><td>Tormenta</td><td><span class="pill must">Completo</span></td></tr>
+              <tr><td>5</td><td>Luis Hernández</td><td>22001005</td><td>Ajedrez</td><td>Varonil</td><td>—</td><td><span class="pill must">Completo</span></td></tr>
+              <tr><td>6</td><td>Sofia Torres</td><td>22001006</td><td>Videojuegos</td><td>Femenil</td><td>—</td><td><span class="pill must">Completo</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ════════════════ TORNEOS / BRACKETS ════════════════ -->
+      <div class="vista" id="vista-torneos">
+        <div class="section-header">
+          <div class="section-title">Brackets y Tablas de Torneo</div>
+          <button class="btn btn-primario" onclick="document.getElementById('modalBracket').classList.add('visible')">⚡ Generar torneo</button>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab activo" onclick="cambiarTab(this,'tab-eliminacion')">Eliminación Directa</div>
+          <div class="tab" onclick="cambiarTab(this,'tab-roundrobin')">Round Robin</div>
+        </div>
+
+        <!-- ELIMINACIÓN DIRECTA -->
+        <div class="tab-content activo" id="tab-eliminacion">
+          <div class="panel">
+            <div class="panel-titulo"><span>🏆</span> Fútbol Varonil — Eliminación Directa</div>
+            <p style="font-size:12px;color:var(--texto-muted);margin-bottom:16px;">Emparejamiento por siembra: #1 vs último, #2 vs penúltimo, etc.</p>
+            <div class="bracket-container">
+              <div class="bracket">
+                <div class="ronda">
+                  <div class="ronda-titulo">Cuartos de Final</div>
+                  <div class="partido">
+                    <div class="equipo ganador"><span>#1 Los Gallos</span><span class="score">3</span></div>
+                    <div class="equipo"><span>#8 Águilas</span><span class="score">1</span></div>
+                  </div>
+                  <div class="partido">
+                    <div class="equipo ganador"><span>#2 Tormenta</span><span class="score">2</span></div>
+                    <div class="equipo"><span>#7 Rayo</span><span class="score">0</span></div>
+                  </div>
+                  <div class="partido">
+                    <div class="equipo ganador"><span>#3 Dragones</span><span class="score">2</span></div>
+                    <div class="equipo"><span>#6 Lobos</span><span class="score">1</span></div>
+                  </div>
+                  <div class="partido">
+                    <div class="equipo"><span>#4 Centauros</span><span class="score">1</span></div>
+                    <div class="equipo ganador"><span>#5 Fénix</span><span class="score">2</span></div>
+                  </div>
+                </div>
+                <div class="flecha">›</div>
+                <div class="ronda">
+                  <div class="ronda-titulo">Semifinales</div>
+                  <div class="partido">
+                    <div class="equipo ganador"><span>Los Gallos</span><span class="score">2</span></div>
+                    <div class="equipo"><span>Tormenta</span><span class="score">1</span></div>
+                  </div>
+                  <div class="partido" style="margin-top:56px;">
+                    <div class="equipo ganador"><span>Dragones</span><span class="score">3</span></div>
+                    <div class="equipo"><span>Fénix</span><span class="score">2</span></div>
+                  </div>
+                </div>
+                <div class="flecha">›</div>
+                <div class="ronda">
+                  <div class="ronda-titulo">Final</div>
+                  <div class="partido" style="margin-top:84px;">
+                    <div class="equipo"><span>Los Gallos</span><span class="score">—</span></div>
+                    <div class="equipo"><span>Dragones</span><span class="score">—</span></div>
+                  </div>
+                </div>
+                <div class="flecha">›</div>
+                <div class="ronda">
+                  <div class="ronda-titulo">Campeón</div>
+                  <div style="margin-top:84px;background:rgba(0,196,140,0.1);border:2px solid var(--verde);border-radius:10px;padding:16px;text-align:center;width:100px;">
+                    <div style="font-size:28px;">🏆</div>
+                    <div style="font-size:12px;color:var(--texto-muted);">Por definir</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROUND ROBIN -->
+        <div class="tab-content" id="tab-roundrobin">
+          <div class="panel">
+            <div class="panel-titulo"><span>🔄</span> Baloncesto Femenil — Round Robin</div>
+            <p style="font-size:12px;color:var(--texto-muted);margin-bottom:16px;">Todos contra todos. Sorteo aleatorio. Cada par aparece exactamente una vez.</p>
+            <div style="overflow-x:auto;">
+              <table class="rr-tabla">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Equipo</th>
+                    <th>Tigres</th><th>Panteras</th><th>Cobras</th><th>Halcones</th>
+                    <th>PJ</th><th>PG</th><th>PP</th><th>Pts</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight:600;">Tigres</td>
+                    <td class="self">—</td>
+                    <td class="victoria">G 45-38</td>
+                    <td class="victoria">G 50-41</td>
+                    <td>— vs —</td>
+                    <td>2</td><td>2</td><td>0</td><td style="color:var(--verde);font-weight:700;">6</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:600;">Panteras</td>
+                    <td class="derrota">P 38-45</td>
+                    <td class="self">—</td>
+                    <td class="victoria">G 42-39</td>
+                    <td>— vs —</td>
+                    <td>2</td><td>1</td><td>1</td><td>4</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:600;">Cobras</td>
+                    <td class="derrota">P 41-50</td>
+                    <td class="derrota">P 39-42</td>
+                    <td class="self">—</td>
+                    <td>— vs —</td>
+                    <td>2</td><td>0</td><td>2</td><td style="color:var(--rojo);">2</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:600;">Halcones</td>
+                    <td>— vs —</td>
+                    <td>— vs —</td>
+                    <td>— vs —</td>
+                    <td class="self">—</td>
+                    <td>0</td><td>0</td><td>0</td><td>0</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════ EQUIPOS ════════════════ -->
+      <div class="vista" id="vista-equipos">
+        <div class="section-header">
+          <div class="section-title">Gestión de Equipos</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secundario" onclick="exportarEquiposExcel()">📥 Exportar a Excel</button>
+            <button class="btn btn-primario" onclick="generarEquiposAleatorios()">🎲 Generar equipos aleatorios</button>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--texto-muted);margin-bottom:20px;">El sistema distribuye participantes de forma aleatoria y equilibrada. Solo aplica para deportes de conjunto.</p>
+
+        <div class="panel-doble">
+          <div class="panel">
+            <div class="panel-titulo"><span>⚽</span> Fútbol Varonil — Equipos generados</div>
+            <table id="tablaEquiposCompleta">
+              <thead><tr><th>Equipo</th><th>Disciplina</th><th>Integrantes</th><th>Estado</th><th>Invitar</th></tr></thead>
+              <tbody id="tablaEquipos">
+                <tr>
+                  <td>Los Gallos</td><td>Fútbol Varonil</td><td>5</td>
+                  <td><span class="pill must">Confirmado</span></td>
+                  <td><button class="btn btn-secundario" style="padding:4px 10px;font-size:11px;" onclick="abrirEnlace('Los Gallos')">🔗 Enlace</button></td>
+                </tr>
+                <tr>
+                  <td>Tormenta</td><td>Fútbol Varonil</td><td>5</td>
+                  <td><span class="pill must">Confirmado</span></td>
+                  <td><button class="btn btn-secundario" style="padding:4px 10px;font-size:11px;" onclick="abrirEnlace('Tormenta')">🔗 Enlace</button></td>
+                </tr>
+                <tr>
+                  <td>Dragones</td><td>Fútbol Varonil</td><td>5</td>
+                  <td><span class="pill must">Confirmado</span></td>
+                  <td><button class="btn btn-secundario" style="padding:4px 10px;font-size:11px;" onclick="abrirEnlace('Dragones')">🔗 Enlace</button></td>
+                </tr>
+                <tr>
+                  <td>Fénix</td><td>Fútbol Varonil</td><td>5</td>
+                  <td><span class="pill must">Confirmado</span></td>
+                  <td><button class="btn btn-secundario" style="padding:4px 10px;font-size:11px;" onclick="abrirEnlace('Fénix')">🔗 Enlace</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <div class="panel-titulo"><span>ℹ️</span> Regla de distribución</div>
+            <div style="font-size:13px;color:var(--texto-muted);line-height:1.7;">
+              <p>Si el número de participantes no es divisible entre el número de equipos, la diferencia máxima entre equipos será de <strong style="color:var(--texto)">1 integrante</strong>.</p>
+              <br>
+              <p>Ej: 17 jugadores ÷ 4 equipos = 3 equipos de 4 + 1 equipo de 5.</p>
+              <br>
+              <p>El líder de cada equipo puede compartir el <strong style="color:var(--verde)">enlace de invitación</strong> para que los demás integrantes se registren directamente al equipo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════ ADMINISTRACIÓN ════════════════ -->
+      <div class="vista" id="vista-admin">
+        <div class="section-header">
+          <div class="section-title">Administración del Sistema</div>
+        </div>
+
+        <div class="panel-doble">
+          <div class="panel">
+            <div class="panel-titulo"><span>🔒</span> Control de Acceso</div>
+            <div style="font-size:13px;color:var(--texto-muted);margin-bottom:16px;line-height:1.6;">
+              Acceso restringido a usuarios autenticados con credenciales institucionales UAA.<br>
+              Disponible desde red interna o <strong style="color:var(--amarillo)">VPN (pendiente validar con TI)</strong>.
+            </div>
+            <div style="background:rgba(255,209,102,0.1);border:1px solid rgba(255,209,102,0.3);border-radius:8px;padding:12px;font-size:12px;color:var(--amarillo);">
+              ⚠ Estado: <strong>En revisión</strong> — Pendiente confirmar soporte VPN con área de TI de la UAA.
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-titulo"><span>🚫</span> Filtro de Contenido</div>
+            <p style="font-size:13px;color:var(--texto-muted);margin-bottom:14px;">Lista de términos inapropiados para nombres de equipos y usuarios. Configurable por el administrador.</p>
+            <div class="field" style="margin-bottom:12px;">
+              <label>Añadir término a la lista</label>
+              <div style="display:flex;gap:8px;">
+                <input type="text" placeholder="Término inapropiado..." id="terminoInput" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--borde);border-radius:8px;padding:9px 12px;color:var(--texto);font-size:13px;outline:none;">
+                <button class="btn btn-primario" onclick="añadirTermino()">Añadir</button>
+              </div>
+            </div>
+            <div id="listaTerminos" style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;">
+              <span style="background:rgba(255,77,109,0.15);border:1px solid rgba(255,77,109,0.3);color:var(--rojo);padding:3px 10px;border-radius:20px;">grosería1</span>
+              <span style="background:rgba(255,77,109,0.15);border:1px solid rgba(255,77,109,0.3);color:var(--rojo);padding:3px 10px;border-radius:20px;">insulto2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-doble">
+          <div class="panel">
+            <div class="panel-titulo"><span>💾</span> Respaldo de Datos</div>
+            <table>
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td>Hoy 06:00 AM</td><td>Automático diario</td><td><span class="pill must">Completado</span></td></tr>
+                <tr><td>Ayer 06:00 AM</td><td>Automático diario</td><td><span class="pill must">Completado</span></td></tr>
+                <tr><td>13/05 06:00 AM</td><td>Automático diario</td><td><span class="pill must">Completado</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <div class="panel-titulo"><span>📈</span> Disponibilidad del Sistema</div>
+            <div style="font-size:13px;color:var(--texto-muted);line-height:1.8;">
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--borde);">
+                <span>SLA objetivo</span><strong style="color:var(--texto)">99% mensual</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--borde);">
+                <span>Tiempo máximo de caída</span><strong style="color:var(--texto)">7.2 h/mes</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--borde);">
+                <span>Tiempo de restauración</span><strong style="color:var(--texto)">≤ 2 horas</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:6px 0;">
+                <span>Uptime este mes</span><strong style="color:var(--verde)">100% ✓</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /contenido -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+  // ── NAVEGACIÓN ──
+  function irVista(id, btn) {
+    document.querySelectorAll('.vista').forEach(v => { v.classList.remove('activa','activa-grid'); });
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('activo'));
+    document.getElementById('vista-' + id).classList.add('activa');
+    if (btn) btn.classList.add('activo');
+    const titulos = {
+      dashboard: 'Dashboard',
+      deportes: 'Disciplinas Deportivas',
+      inscripcion: 'Nueva Inscripción',
+      participantes: 'Participantes',
+      torneos: 'Brackets y Tablas',
+      equipos: 'Gestión de Equipos',
+      admin: 'Administración'
+    };
+    document.getElementById('topbarTitulo').textContent = titulos[id] || id;
+  }
+
+  // ── TABS ──
+  function cambiarTab(tab, contentId) {
+    tab.closest('.tab-bar').querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+    tab.classList.add('activo');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'));
+    document.getElementById(contentId).classList.add('activo');
+  }
+
+  // ── TOAST ──
+  function mostrarToast(icon, msg, tipo) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastIcon').textContent = icon;
+    document.getElementById('toastMsg').textContent = msg;
+    t.className = 'toast' + (tipo === 'error' ? ' error' : '');
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 3200);
+  }
+
+  // ── MODALES ──
+  function cerrarModal(id) {
+    document.getElementById(id).classList.remove('visible');
+  }
+
+  function confirmarCierre() {
+    cerrarModal('modalCierre');
+    document.getElementById('estadoInscripcionesBadge').textContent = '🔒 Inscripciones cerradas';
+    document.getElementById('estadoInscripcionesBadge').classList.add('rojo');
+    document.querySelector('.estado-bar').style.background = 'rgba(255,77,109,0.08)';
+    document.querySelector('.estado-bar').style.borderColor = 'rgba(255,77,109,0.25)';
+    document.querySelector('.estado-bar .dot').style.background = 'var(--rojo)';
+    document.querySelector('.estado-bar span').innerHTML = 'Inscripciones <strong style="color:var(--rojo)">cerradas</strong> · No se aceptan nuevos registros';
+    document.querySelector('.estado-bar .chip').style.display = 'none';
+    mostrarToast('🔒', 'Inscripciones cerradas. Ahora puedes generar brackets.');
+  }
+
+  function generarBracket() {
+    cerrarModal('modalBracket');
+    mostrarToast('⚡', 'Bracket generado automáticamente');
+  }
+
+  // ── ENLACE DE INVITACIÓN ──
+  function abrirEnlace(nombreEquipo) {
+    const slug = nombreEquipo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-');
+    const codigo = Math.random().toString(36).substr(2, 8).toUpperCase();
+    document.getElementById('textoEnlace').textContent = `https://arena.uaa.mx/unirse?equipo=${slug}&token=${codigo}`;
+    document.getElementById('nombreEquipoInvite').textContent = nombreEquipo;
+    document.getElementById('modalEnlace').classList.add('visible');
+  }
+
+  function copiarEnlace() {
+    const texto = document.getElementById('textoEnlace').textContent;
+    navigator.clipboard.writeText(texto).catch(() => {});
+    mostrarToast('📋', 'Enlace copiado al portapapeles');
+    cerrarModal('modalEnlace');
+  }
+
+  // ── UNIRSE A EQUIPO ──
+  function confirmarUnirse() {
+    const nombre = document.getElementById('uni_nombre').value.trim();
+    const matricula = document.getElementById('uni_matricula').value.trim();
+    const correo = document.getElementById('uni_correo').value.trim();
+    let ok = true;
+    [['uni_nombre','uni_err_nombre'],['uni_matricula','uni_err_matricula'],['uni_correo','uni_err_correo']].forEach(([id, err]) => {
+      const v = document.getElementById(id).value.trim();
+      document.getElementById(id).classList.toggle('error', !v);
+      document.getElementById(err).classList.toggle('visible', !v);
+      if (!v) ok = false;
+    });
+    if (!ok) return;
+    const equipo = document.getElementById('nombreEquipoInvite').textContent;
+    cerrarModal('modalUnirse');
+    mostrarToast('✅', `${nombre} se unió a "${equipo}" correctamente`);
+    // Añadir a tabla de participantes
+    const tabla = document.getElementById('tablaParticipantes');
+    const n = tabla.querySelectorAll('tr').length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${n}</td><td>${nombre}</td><td>${matricula}</td><td>Fútbol Varonil</td><td>Varonil</td><td>${equipo}</td><td><span class="pill must">Completo</span></td>`;
+    tabla.appendChild(tr);
+    ['uni_nombre','uni_matricula','uni_correo'].forEach(id => { document.getElementById(id).value = ''; document.getElementById(id).classList.remove('error'); });
+    ['uni_err_nombre','uni_err_matricula','uni_err_correo'].forEach(id => document.getElementById(id).classList.remove('visible'));
+  }
+
+  // ── FILTRO DE PALABRAS OFENSIVAS ──
+  const palabrasOfensivas = ['grosería1', 'insulto2', 'ofensa3'];
+
+  function añadirTermino() {
+    const input = document.getElementById('terminoInput');
+    const val = input.value.trim();
+    if (!val) return;
+    palabrasOfensivas.push(val.toLowerCase());
+    const span = document.createElement('span');
+    span.style.cssText = 'background:rgba(255,77,109,0.15);border:1px solid rgba(255,77,109,0.3);color:var(--rojo);padding:3px 10px;border-radius:20px;';
+    span.textContent = val;
+    document.getElementById('listaTerminos').appendChild(span);
+    input.value = '';
+    mostrarToast('✅', 'Término añadido a la lista de filtros');
+  }
+
+  // ── FORMULARIO DE INSCRIPCIÓN ──
+  function validarCampo(id, errId) {
+    const campo = document.getElementById(id);
+    const err = document.getElementById(errId);
+    const vacio = !campo.value.trim();
+    campo.classList.toggle('error', vacio);
+    err.classList.toggle('visible', vacio);
+    return !vacio;
+  }
+
+  function registrarParticipante() {
+    const campos = [
+      ['f_nombre','err_nombre'],['f_matricula','err_matricula'],
+      ['f_edad','err_edad'],['f_correo','err_correo'],
+      ['f_disciplina','err_disciplina'],['f_categoria','err_categoria'],
+    ];
+    let ok = true;
+    campos.forEach(([id, err]) => { if (!validarCampo(id, err)) ok = false; });
+
+    const equipo = document.getElementById('f_equipo').value.trim().toLowerCase();
+    const errEquipo = document.getElementById('err_equipo');
+    if (equipo && palabrasOfensivas.some(p => equipo.includes(p))) {
+      document.getElementById('f_equipo').classList.add('error');
+      errEquipo.textContent = 'El nombre de equipo contiene términos inapropiados';
+      errEquipo.classList.add('visible');
+      ok = false;
+    } else {
+      document.getElementById('f_equipo').classList.remove('error');
+      errEquipo.classList.remove('visible');
+    }
+
+    if (!ok) { mostrarToast('❌', 'Completa todos los campos obligatorios', 'error'); return; }
+
+    const nombre = document.getElementById('f_nombre').value;
+    const matricula = document.getElementById('f_matricula').value;
+    const disciplina = document.getElementById('f_disciplina').value;
+    const categoria = document.getElementById('f_categoria').value;
+    const equipoV = document.getElementById('f_equipo').value || '—';
+
+    const tabla = document.getElementById('tablaParticipantes');
+    const filas = tabla.querySelectorAll('tr').length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${filas}</td><td>${nombre}</td><td>${matricula}</td><td>${disciplina}</td><td>${categoria}</td><td>${equipoV}</td><td><span class="pill must">Completo</span></td>`;
+    tabla.appendChild(tr);
+    mostrarToast('✅', `Participante "${nombre}" registrado correctamente`);
+    limpiarForm();
+  }
+
+  function limpiarForm() {
+    ['f_nombre','f_matricula','f_edad','f_correo','f_disciplina','f_categoria','f_equipo'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.value = ''; el.classList.remove('error'); }
+    });
+    document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('visible'));
+  }
+
+  // ── GENERAR EQUIPOS ALEATORIOS ──
+  function generarEquiposAleatorios() {
+    const nombres = ['Los Gallos','Tormenta','Dragones','Fénix','Rayos','Lobos'];
+    const tbody = document.getElementById('tablaEquipos');
+    tbody.innerHTML = '';
+    nombres.slice(0, 4).forEach(n => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${n}</td>
+        <td>Fútbol Varonil</td>
+        <td>${4 + Math.floor(Math.random()*2)}</td>
+        <td><span class="pill must">Generado</span></td>
+        <td><button class="btn btn-secundario" style="padding:4px 10px;font-size:11px;" onclick="abrirEnlace('${n}')">🔗 Enlace</button></td>`;
+      tbody.appendChild(tr);
+    });
+    mostrarToast('🎲', 'Equipos generados aleatoriamente');
+  }
+
+  // ── EXPORTAR A EXCEL ──
+  function exportarEquiposExcel() {
+    const tabla = document.getElementById('tablaEquiposCompleta');
+    // Construir datos desde la tabla visible
+    const filas = [['Equipo','Disciplina','Integrantes','Estado']];
+    tabla.querySelectorAll('tbody tr').forEach(tr => {
+      const celdas = tr.querySelectorAll('td');
+      filas.push([
+        celdas[0]?.textContent.trim() || '',
+        celdas[1]?.textContent.trim() || '',
+        celdas[2]?.textContent.trim() || '',
+        celdas[3]?.textContent.trim() || ''
+      ]);
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(filas);
+
+    // Ancho de columnas
+    ws['!cols'] = [{wch:20},{wch:20},{wch:14},{wch:14}];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
+
+    // Hoja de participantes
+    const tablaP = document.getElementById('tablaParticipantes');
+    const filasP = [['#','Nombre','Matrícula','Disciplina','Categoría','Equipo','Estado']];
+    tablaP.querySelectorAll('tr').forEach(tr => {
+      const c = tr.querySelectorAll('td');
+      if (c.length) filasP.push(Array.from(c).map(x => x.textContent.trim()));
+    });
+    const wsP = XLSX.utils.aoa_to_sheet(filasP);
+    wsP['!cols'] = [{wch:5},{wch:22},{wch:12},{wch:18},{wch:10},{wch:16},{wch:10}];
+    XLSX.utils.book_append_sheet(wb, wsP, 'Participantes');
+
+    XLSX.writeFile(wb, 'equipos_torneos_UAA.xlsx');
+    mostrarToast('📥', 'Archivo Excel descargado correctamente');
+  }
+</script>
+</body>
+</html>

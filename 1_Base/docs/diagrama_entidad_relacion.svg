@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 660" role="img" font-family="Segoe UI, Arial, sans-serif">
+<title>Diagrama Entidad-Relacion - Arena UAA Videojuegos</title>
+<desc>Modelo entidad-relacion de la base de datos arena_uaa con 6 tablas: usuario, videojuego, equipo, jugador, torneo y partida.</desc>
+<rect x="0" y="0" width="1060" height="660" rx="16" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="530.0" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">Diagrama Entidad–Relación · Arena UAA (Videojuegos)</text>
+<text x="530.0" y="61" text-anchor="middle" font-size="13" fill="#64748b">Base de datos: arena_uaa — 6 tablas en 3FN</text>
+<line x1="530" y1="248" x2="530" y2="370" stroke="#7c3aed" stroke-width="2"/>
+<line x1="670" y1="164" x2="750" y2="176" stroke="#7c3aed" stroke-width="2"/>
+<line x1="390" y1="442" x2="310" y2="454" stroke="#7c3aed" stroke-width="2"/>
+<line x1="890" y1="271" x2="890" y2="340" stroke="#7c3aed" stroke-width="2"/>
+<line x1="670" y1="402" x2="750" y2="396" stroke="#7c3aed" stroke-width="2"/>
+<line x1="670" y1="486" x2="750" y2="492" stroke="#7c3aed" stroke-width="2"/>
+<rect x="30" y="80" width="280" height="191" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<path d="M30,90 a10,10 0 0 1 10,-10 h260 a10,10 0 0 1 10,10 v20 h-280 z" fill="#64748b"/>
+<text x="170.0" y="100" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">usuario</text>
+<circle cx="44" cy="121.5" r="4" fill="#f59e0b"/>
+<text x="54" y="126" font-size="12" font-weight="700" fill="#0f172a" text-decoration="underline">id_usuario</text>
+<text x="298" y="126" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="31" y="133" width="278" height="23" fill="#f8fafc"/>
+<text x="54" y="149" font-size="12" fill="#334155">nombre</text>
+<text x="298" y="149" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(100)</text>
+<text x="54" y="172" font-size="12" fill="#334155">correo</text>
+<text x="298" y="172" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(120) UQ</text>
+<rect x="31" y="179" width="278" height="23" fill="#f8fafc"/>
+<text x="54" y="195" font-size="12" fill="#334155">usuario</text>
+<text x="298" y="195" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(50) UQ</text>
+<text x="54" y="218" font-size="12" fill="#334155">contrasena</text>
+<text x="298" y="218" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(255)</text>
+<rect x="31" y="225" width="278" height="23" fill="#f8fafc"/>
+<text x="54" y="241" font-size="12" fill="#334155">rol</text>
+<text x="298" y="241" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(20)</text>
+<text x="54" y="264" font-size="12" fill="#334155">fecha_registro</text>
+<text x="298" y="264" text-anchor="end" font-size="10.5" fill="#94a3b8">DATETIME</text>
+<rect x="390" y="80" width="280" height="168" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<path d="M390,90 a10,10 0 0 1 10,-10 h260 a10,10 0 0 1 10,10 v20 h-280 z" fill="#6d28d9"/>
+<text x="530.0" y="100" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">videojuego</text>
+<circle cx="404" cy="121.5" r="4" fill="#f59e0b"/>
+<text x="414" y="126" font-size="12" font-weight="700" fill="#0f172a" text-decoration="underline">id_videojuego</text>
+<text x="658" y="126" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="391" y="133" width="278" height="23" fill="#f8fafc"/>
+<text x="414" y="149" font-size="12" fill="#334155">nombre</text>
+<text x="658" y="149" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(100)</text>
+<text x="414" y="172" font-size="12" fill="#334155">genero</text>
+<text x="658" y="172" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(50)</text>
+<rect x="391" y="179" width="278" height="23" fill="#f8fafc"/>
+<text x="414" y="195" font-size="12" fill="#334155">plataforma</text>
+<text x="658" y="195" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(50)</text>
+<text x="414" y="218" font-size="12" fill="#334155">jugadores_por_equipo</text>
+<text x="658" y="218" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="391" y="225" width="278" height="23" fill="#f8fafc"/>
+<text x="414" y="241" font-size="12" fill="#334155">descripcion</text>
+<text x="658" y="241" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(255)</text>
+<rect x="750" y="80" width="280" height="191" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<path d="M750,90 a10,10 0 0 1 10,-10 h260 a10,10 0 0 1 10,10 v20 h-280 z" fill="#6d28d9"/>
+<text x="890.0" y="100" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">torneo</text>
+<circle cx="764" cy="121.5" r="4" fill="#f59e0b"/>
+<text x="774" y="126" font-size="12" font-weight="700" fill="#0f172a" text-decoration="underline">id_torneo</text>
+<text x="1018" y="126" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="751" y="133" width="278" height="23" fill="#f8fafc"/>
+<text x="774" y="149" font-size="12" fill="#334155">nombre</text>
+<text x="1018" y="149" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(120)</text>
+<circle cx="764" cy="167.5" r="4" fill="#2563eb"/>
+<text x="774" y="172" font-size="12" fill="#1d4ed8">id_videojuego</text>
+<text x="1018" y="172" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="751" y="179" width="278" height="23" fill="#f8fafc"/>
+<text x="774" y="195" font-size="12" fill="#334155">fecha_inicio</text>
+<text x="1018" y="195" text-anchor="end" font-size="10.5" fill="#94a3b8">DATE</text>
+<text x="774" y="218" font-size="12" fill="#334155">fecha_fin</text>
+<text x="1018" y="218" text-anchor="end" font-size="10.5" fill="#94a3b8">DATE</text>
+<rect x="751" y="225" width="278" height="23" fill="#f8fafc"/>
+<text x="774" y="241" font-size="12" fill="#334155">estado</text>
+<text x="1018" y="241" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(20)</text>
+<text x="774" y="264" font-size="12" fill="#334155">premio</text>
+<text x="1018" y="264" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(100)</text>
+<rect x="30" y="370" width="280" height="168" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<path d="M30,380 a10,10 0 0 1 10,-10 h260 a10,10 0 0 1 10,10 v20 h-280 z" fill="#6d28d9"/>
+<text x="170.0" y="390" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">jugador</text>
+<circle cx="44" cy="411.5" r="4" fill="#f59e0b"/>
+<text x="54" y="416" font-size="12" font-weight="700" fill="#0f172a" text-decoration="underline">id_jugador</text>
+<text x="298" y="416" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="31" y="423" width="278" height="23" fill="#f8fafc"/>
+<text x="54" y="439" font-size="12" fill="#334155">nombre</text>
+<text x="298" y="439" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(100)</text>
+<text x="54" y="462" font-size="12" fill="#334155">gamertag</text>
+<text x="298" y="462" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(50)</text>
+<rect x="31" y="469" width="278" height="23" fill="#f8fafc"/>
+<text x="54" y="485" font-size="12" fill="#334155">matricula</text>
+<text x="298" y="485" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(20)</text>
+<text x="54" y="508" font-size="12" fill="#334155">rol_juego</text>
+<text x="298" y="508" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(50)</text>
+<rect x="31" y="515" width="278" height="23" fill="#f8fafc"/>
+<circle cx="44" cy="526.5" r="4" fill="#2563eb"/>
+<text x="54" y="531" font-size="12" fill="#1d4ed8">id_equipo</text>
+<text x="298" y="531" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="390" y="370" width="280" height="145" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<path d="M390,380 a10,10 0 0 1 10,-10 h260 a10,10 0 0 1 10,10 v20 h-280 z" fill="#6d28d9"/>
+<text x="530.0" y="390" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">equipo</text>
+<circle cx="404" cy="411.5" r="4" fill="#f59e0b"/>
+<text x="414" y="416" font-size="12" font-weight="700" fill="#0f172a" text-decoration="underline">id_equipo</text>
+<text x="658" y="416" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="391" y="423" width="278" height="23" fill="#f8fafc"/>
+<text x="414" y="439" font-size="12" fill="#334155">nombre</text>
+<text x="658" y="439" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(100)</text>
+<text x="414" y="462" font-size="12" fill="#334155">institucion</text>
+<text x="658" y="462" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(120)</text>
+<rect x="391" y="469" width="278" height="23" fill="#f8fafc"/>
+<circle cx="404" cy="480.5" r="4" fill="#2563eb"/>
+<text x="414" y="485" font-size="12" fill="#1d4ed8">id_videojuego</text>
+<text x="658" y="485" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<text x="414" y="508" font-size="12" fill="#334155">fecha_creacion</text>
+<text x="658" y="508" text-anchor="end" font-size="10.5" fill="#94a3b8">DATE</text>
+<rect x="750" y="340" width="280" height="214" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<path d="M750,350 a10,10 0 0 1 10,-10 h260 a10,10 0 0 1 10,10 v20 h-280 z" fill="#6d28d9"/>
+<text x="890.0" y="360" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">partida</text>
+<circle cx="764" cy="381.5" r="4" fill="#f59e0b"/>
+<text x="774" y="386" font-size="12" font-weight="700" fill="#0f172a" text-decoration="underline">id_partida</text>
+<text x="1018" y="386" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="751" y="393" width="278" height="23" fill="#f8fafc"/>
+<circle cx="764" cy="404.5" r="4" fill="#2563eb"/>
+<text x="774" y="409" font-size="12" fill="#1d4ed8">id_torneo</text>
+<text x="1018" y="409" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<circle cx="764" cy="427.5" r="4" fill="#2563eb"/>
+<text x="774" y="432" font-size="12" fill="#1d4ed8">id_equipo_local</text>
+<text x="1018" y="432" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="751" y="439" width="278" height="23" fill="#f8fafc"/>
+<circle cx="764" cy="450.5" r="4" fill="#2563eb"/>
+<text x="774" y="455" font-size="12" fill="#1d4ed8">id_equipo_visitante</text>
+<text x="1018" y="455" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<text x="774" y="478" font-size="12" fill="#334155">fecha_partida</text>
+<text x="1018" y="478" text-anchor="end" font-size="10.5" fill="#94a3b8">DATETIME</text>
+<rect x="751" y="485" width="278" height="23" fill="#f8fafc"/>
+<text x="774" y="501" font-size="12" fill="#334155">marcador_local</text>
+<text x="1018" y="501" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<text x="774" y="524" font-size="12" fill="#334155">marcador_visitante</text>
+<text x="1018" y="524" text-anchor="end" font-size="10.5" fill="#94a3b8">INT</text>
+<rect x="751" y="531" width="278" height="23" fill="#f8fafc"/>
+<text x="774" y="547" font-size="12" fill="#334155">estado</text>
+<text x="1018" y="547" text-anchor="end" font-size="10.5" fill="#94a3b8">VARCHAR(20)</text>
+<text x="170" y="288" text-anchor="middle" font-size="11" font-style="italic" fill="#94a3b8">(independiente — login)</text>
+<text x="520" y="264" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">1</text>
+<text x="520" y="360" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">N</text>
+<rect x="508.0" y="298" width="44.0" height="18" rx="9" fill="#ede9fe" stroke="#c4b5fd"/>
+<text x="530" y="311" text-anchor="middle" font-size="11" fill="#5b21b6">tiene</text>
+<text x="662" y="158" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">1</text>
+<text x="744" y="184" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">N</text>
+<rect x="688.0" y="138" width="44.0" height="18" rx="9" fill="#ede9fe" stroke="#c4b5fd"/>
+<text x="710" y="151" text-anchor="middle" font-size="11" fill="#5b21b6">tiene</text>
+<text x="380" y="436" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">1</text>
+<text x="322" y="450" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">N</text>
+<rect x="326.0" y="420" width="44.0" height="18" rx="9" fill="#ede9fe" stroke="#c4b5fd"/>
+<text x="348" y="433" text-anchor="middle" font-size="11" fill="#5b21b6">tiene</text>
+<text x="878" y="286" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">1</text>
+<text x="878" y="332" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">N</text>
+<rect x="858.4" y="300" width="63.2" height="18" rx="9" fill="#ede9fe" stroke="#c4b5fd"/>
+<text x="890" y="313" text-anchor="middle" font-size="11" fill="#5b21b6">contiene</text>
+<text x="662" y="396" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">1</text>
+<text x="744" y="390" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">N</text>
+<rect x="684.0" y="366" width="44.0" height="18" rx="9" fill="#ede9fe" stroke="#c4b5fd"/>
+<text x="706" y="379" text-anchor="middle" font-size="11" fill="#5b21b6">local</text>
+<text x="662" y="492" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">1</text>
+<text x="744" y="498" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">N</text>
+<rect x="669.2" y="496" width="69.6" height="18" rx="9" fill="#ede9fe" stroke="#c4b5fd"/>
+<text x="704" y="509" text-anchor="middle" font-size="11" fill="#5b21b6">visitante</text>
+<rect x="30" y="582" width="1000" height="44" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+<circle cx="52" cy="604" r="5" fill="#f59e0b"/>
+<text x="64" y="608" font-size="12.5" fill="#334155">PK = llave primaria</text>
+<circle cx="232" cy="604" r="5" fill="#2563eb"/>
+<text x="244" y="608" font-size="12.5" fill="#334155">FK = llave foránea</text>
+<text x="410" y="608" font-size="12.5" font-weight="700" fill="#0f172a">1 — N</text>
+<text x="455" y="608" font-size="12.5" fill="#334155">= relación uno a muchos</text>
+<text x="660" y="608" font-size="12.5" fill="#334155">Borrado en cascada: jugador (con equipo) y partida (con torneo)</text>
+</svg>

@@ -1,0 +1,1 @@
+Este prototipo es un ejemplo de como queremos que quede la pagina Final, aplicable para todas las disciplinas y torneos, el cual fue revisado y aprobado, el prototipo final, es la parte de videojuegos funcional, el objetivo es hacer eso mismo con los demás, por ejemplo judo, ajedrez, etc. 
